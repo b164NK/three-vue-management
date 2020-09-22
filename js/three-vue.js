@@ -17,12 +17,25 @@ window.onload = function(){
 			methods:{
 				animate(){
 					this.renderer.render(this.scene, this.camera);
-					this.cube.rotation.x += 0.01;
-					this.cube.rotation.y += 0.02;
-					this.cube.rotation.z += 0.03;
-					requestAnimationFrame(this.animate);
+					//this.cube.rotation.x += 0.01;
+					//this.cube.rotation.y += 0.02;
+					//this.cube.rotation.z += 0.03;
+					//↑「上三行はボタン押下イベントの中で設定」
 
-					//console.log('acting...');
+					requestAnimationFrame(this.animate);
+					//↑「ライフサイクルのupdatedイベントで次のフレームを呼ぶようにする」
+				},
+				clickX(){
+					this.$set(this.cube.rotation,'x', this.cube.rotation.x+10);
+					//console.log('click x');
+				},
+				clickY(){
+					this.$set(this.cube.rotation,'y', this.cube.rotation.y+10);
+					//console.log('click y');
+				},
+				clickZ(){
+					this.$set(this.cube.rotation,'z', this.cube.rotation.z+10);
+					//console.log('click z');
 				}
 			},
 			mounted() {
@@ -39,12 +52,11 @@ window.onload = function(){
 				this.scene.add(this.light);
 				this.scene.add(this.cube);
 
-				//console.log(this.camera.position);
-				//console.log(this.scene.children);
-				//console.log(this.cube);
-
 				this.animate();
 
+			},
+			updated(){
+				requestAnimationFrame(this.animate);
 			}
 
 	});
