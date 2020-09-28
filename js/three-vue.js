@@ -16,6 +16,7 @@ window.onload = function(){
 			},
 			methods:{
 				animate(){
+					console.log('「animate」が動いています');
 					this.renderer.render(this.scene, this.camera);
 					//this.cube.rotation.x += 0.01;
 					//this.cube.rotation.y += 0.02;
@@ -26,16 +27,16 @@ window.onload = function(){
 					//↑「ライフサイクルのupdatedイベントで次のフレームを呼ぶようにする」
 				},
 				clickX(){
-					this.$set(this.cube.rotation,'x', this.cube.rotation.x+10);
-					//console.log('click x');
+					this.$set(this.cube.rotation,'x', this.cube.rotation.x+0.1);
+					console.log('click x');
 				},
 				clickY(){
-					this.$set(this.cube.rotation,'y', this.cube.rotation.y+10);
-					//console.log('click y');
+					this.$set(this.cube.rotation,'y', this.cube.rotation.y+0.1);
+					console.log('click y');
 				},
 				clickZ(){
-					this.$set(this.cube.rotation,'z', this.cube.rotation.z+10);
-					//console.log('click z');
+					this.$set(this.cube.rotation,'z', this.cube.rotation.z+0.1);
+					console.log('click z');
 				}
 			},
 			mounted() {
@@ -54,10 +55,6 @@ window.onload = function(){
 
 				this.animate();
 
-			},
-			updated(){
-				requestAnimationFrame(this.animate);
 			}
-
 	});
 };
