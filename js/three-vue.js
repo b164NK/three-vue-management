@@ -1,42 +1,81 @@
 window.onload = function(){
+	//タッチイベントが利用可能かどうかの判別
+	var supportTouch = 'ontouchend' in document;
+
+	//イベント名の決定
+	var EVENTNAME_START = supportTouch? 'touchstart':'mousedown';
+	var EVENTNAME_MOVE = supportTouch? 'touchmove':'mousemove';
+	var EVENTNAME_END = supportTouch? 'touchend':'mouseup';
+
+	var el_myCanvas = document.getElementById('myCanvas');
+	var clientRect = el_myCanvas.getBoundingClientRect();
+	console.log(clientRect);
+	//↓　x,y座標の基準点を決める
+	//ページの左端から要素の左端までの距離
+	var positionX = clientRect.left + clientRect.width/2 + window.pageXOffset ;
+	//ページの上端から要素の上端までの距離
+	var positionY = clientRect.top + clientRect.height/2 + window.pageYOffset ;
 
 	new Vue({
 			el:"#app",
 			data: {
+				//three.js関連
 				scene : new THREE.Scene(),
 				renderer : new THREE.WebGLRenderer({antialias: true}),
 				camera :  new THREE.PerspectiveCamera(45,1,1,10000),
 				light : new THREE.DirectionalLight(0xFFFFFF, 1),
 				geometry : new THREE.BoxGeometry(400, 400, 400),
 				material : new THREE.MeshNormalMaterial(),
-				//cube : new THREE.Mesh(this.geometry,this.material
-				// ↑「cubeについては、geometry及びmaterialがこの時点では
-				//使えないため０とおくしかない」
-				cube : 0
+				cube : 0,
+				//touch操作関連
+				pointX: 0,
+				pointY: 0,
+				myText: '画面をタッチしてください',
+				bgcolor: 'lightblue',
+				eventstart: EVENTNAME_START,
+				eventmove: EVENTNAME_MOVE,
+				eventend: EVENTNAME_END
 			},
 			methods:{
 				animate(){
-					console.log('「animate」が動いています');
+					//console.log('render!');
+					this.$set(this.cube.rotation,'x', this.cube.rotation.x+ this.pointY / 100000);
+					this.$set(this.cube.rotation,'y', this.cube.rotation.y+ this.pointX / 100000);
 					this.renderer.render(this.scene, this.camera);
-					//this.cube.rotation.x += 0.01;
-					//this.cube.rotation.y += 0.02;
-					//this.cube.rotation.z += 0.03;
-					//↑「上三行はボタン押下イベントの中で設定」
+					if(this.bgcolor == 'orange'){
+						requestAnimationFrame(this.animate);
+					}
+				},
+				handleStart:function(e){
+					this.bgcolor = 'orange';
+					this.myText = 'タッチ中';
+					if(this.eventstart == 'touchstart'){
+						this.pointX = e.changedTouches[0].pageX - positionX;
+						this.pointY = e.changedTouches[0].pageY - positionY;
 
-					requestAnimationFrame(this.animate);
-					//↑「ライフサイクルのupdatedイベントで次のフレームを呼ぶようにする」
+					}else if(this.eventstart == 'mousedown'){
+						this.pointX = e.pageX - positionX;
+						this.pointY = e.pageY - positionY;
+
+					}
 				},
-				clickX(){
-					this.$set(this.cube.rotation,'x', this.cube.rotation.x+0.1);
-					console.log('click x');
+				handleMove:function(e){
+					if(this.bgcolor == 'orange'){
+						if(this.eventmove == 'touchmove'){
+							e.preventDefault();
+							this.pointX = e.changedTouches[0].pageX - positionX;
+							this.pointY = e.changedTouches[0].pageY - positionY;
+
+						}else if(this.eventmove == 'mousemove'){
+							this.pointX = e.pageX - positionX;
+							this.pointY = e.pageY - positionY;
+
+						}
+					}
 				},
-				clickY(){
-					this.$set(this.cube.rotation,'y', this.cube.rotation.y+0.1);
-					console.log('click y');
-				},
-				clickZ(){
-					this.$set(this.cube.rotation,'z', this.cube.rotation.z+0.1);
-					console.log('click z');
+				handleEnd:function(e){
+					this.bgcolor = 'lightblue';
+					this.myText = '画面をタッチしてください';
 				}
 			},
 			mounted() {
@@ -45,7 +84,6 @@ window.onload = function(){
 				this.renderer.setPixelRatio(window.devicePixelRatio);
 				this.renderer.setSize(canvas.clientWidth, canvas.clientHeight);
 				this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
-				//カメラの初期ポジションは(0,0,0)で[-z]方向を向いている
 				this.camera.position.z = 1000;
 				this.cube = new THREE.Mesh(this.geometry,this.material);
 
@@ -53,6 +91,11 @@ window.onload = function(){
 				this.scene.add(this.light);
 				this.scene.add(this.cube);
 
+				this.animate();
+
+			},
+			updated(){
+				//console.log('updated')
 				this.animate();
 
 			}
