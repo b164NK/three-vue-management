@@ -9,7 +9,7 @@ window.onload = function(){
 
 	var el_myCanvas = document.getElementById('myCanvas');
 	var clientRect = el_myCanvas.getBoundingClientRect();
-	console.log(clientRect);
+
 	//↓　x,y座標の基準点を決める
 	//ページの左端から要素の左端までの距離
 	var positionX = clientRect.left + clientRect.width/2 + window.pageXOffset ;
@@ -37,26 +37,19 @@ window.onload = function(){
 				eventend: EVENTNAME_END
 			},
 			methods:{
-				animate(){
-					//console.log('render!');
-					this.$set(this.cube.rotation,'x', this.cube.rotation.x+ this.pointY / 100000);
-					this.$set(this.cube.rotation,'y', this.cube.rotation.y+ this.pointX / 100000);
-					this.renderer.render(this.scene, this.camera);
-					if(this.bgcolor == 'orange'){
-						requestAnimationFrame(this.animate);
-					}
-				},
 				handleStart:function(e){
 					this.bgcolor = 'orange';
 					this.myText = 'タッチ中';
 					if(this.eventstart == 'touchstart'){
 						this.pointX = e.changedTouches[0].pageX - positionX;
 						this.pointY = e.changedTouches[0].pageY - positionY;
-
+						this.$set(this.cube.rotation,'x', this.cube.rotation.x+ this.pointY / 10000);
+						this.$set(this.cube.rotation,'y', this.cube.rotation.y+ this.pointX / 10000);
 					}else if(this.eventstart == 'mousedown'){
 						this.pointX = e.pageX - positionX;
 						this.pointY = e.pageY - positionY;
-
+						this.$set(this.cube.rotation,'x', this.cube.rotation.x+ this.pointY / 10000);
+						this.$set(this.cube.rotation,'y', this.cube.rotation.y+ this.pointX / 10000);
 					}
 				},
 				handleMove:function(e){
@@ -65,17 +58,21 @@ window.onload = function(){
 							e.preventDefault();
 							this.pointX = e.changedTouches[0].pageX - positionX;
 							this.pointY = e.changedTouches[0].pageY - positionY;
-
+							this.$set(this.cube.rotation,'x', this.cube.rotation.x+ this.pointY / 10000);
+							this.$set(this.cube.rotation,'y', this.cube.rotation.y+ this.pointX / 10000);
 						}else if(this.eventmove == 'mousemove'){
 							this.pointX = e.pageX - positionX;
 							this.pointY = e.pageY - positionY;
-
+							this.$set(this.cube.rotation,'x', this.cube.rotation.x+ this.pointY / 10000);
+							this.$set(this.cube.rotation,'y', this.cube.rotation.y+ this.pointX / 10000);
 						}
 					}
 				},
 				handleEnd:function(e){
 					this.bgcolor = 'lightblue';
 					this.myText = '画面をタッチしてください';
+					this.pointX = 0;
+					this.pointY = 0;
 				}
 			},
 			mounted() {
@@ -91,12 +88,13 @@ window.onload = function(){
 				this.scene.add(this.light);
 				this.scene.add(this.cube);
 
-				this.animate();
+				this.renderer.render(this.scene, this.camera);
+				console.log("from mounted");
 
 			},
 			updated(){
-				//console.log('updated')
-				this.animate();
+				this.renderer.render(this.scene, this.camera);
+				console.log("from updated");
 
 			}
 	});
